@@ -1,0 +1,133 @@
+﻿@using RestaurantManagementSystem.Models
+@model RestaurantManagementSystem.Models.Reservation
+
+@{
+    ViewData["Title"] = "Reservation Details";
+}
+
+<div class="container">
+    <div class="mb-4">
+        <a asp-action="Reservations" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Reservations List
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Reservation Details</h5>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <p><strong>Reservation Number:</strong> #@Model.Id</p>
+                    <p><strong>Customer:</strong> @Model.User.FirstName @Model.User.LastName</p>
+                    <p><strong>Email:</strong> @Model.User.Email</p>
+                    <p><strong>Phone:</strong> @Model.User.PhoneNumber</p>
+                    <p><strong>Reservation Date:</strong> @Model.ReservationTime.ToShortDateString()</p>
+                    <p><strong>Reservation Time:</strong> @Model.ReservationTime.ToShortTimeString()</p>
+                    <p><strong>Party Size:</strong> @Model.PartySize people</p>
+                </div>
+                <div class="col-md-6">
+                    <p>
+                        <strong>Reservation Status:</strong>
+                        @switch (Model.Status)
+                        {
+                            case ReservationStatus.Pending:
+                                <span class="badge bg-warning">Pending</span>
+                                break;
+                            case ReservationStatus.Confirmed:
+                                <span class="badge bg-success">Confirmed</span>
+                                break;
+                            case ReservationStatus.Cancelled:
+                                <span class="badge bg-danger">Cancelled</span>
+                                break;
+                            case ReservationStatus.Completed:
+                                <span class="badge bg-secondary">Completed</span>
+                                break;
+                        }
+                    </p>
+                    <p><strong>Created On:</strong> @Model.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <p><strong>Last Updated:</strong> @Model.UpdatedAt.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.SpecialRequests))
+                    {
+                        <p><strong>Special Requests:</strong> @Model.SpecialRequests</p>
+                    }
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <form asp-action="UpdateReservationStatus" asp-route-id="@Model.Id" method="post" class="row g-3">
+                    <div class="col-auto">
+                        <select name="status" class="form-select">
+                            <option value="@((int)ReservationStatus.Pending)" selected="@(Model.Status == ReservationStatus.Pending ? "selected" : null)">Pending</option>
+                            <option value="@((int)ReservationStatus.Confirmed)" selected="@(Model.Status == ReservationStatus.Confirmed ? "selected" : null)">Confirmed</option>
+                            <option value="@((int)ReservationStatus.Cancelled)" selected="@(Model.Status == ReservationStatus.Cancelled ? "selected" : null)">Cancelled</option>
+                            <option value="@((int)ReservationStatus.Completed)" selected="@(Model.Status == ReservationStatus.Completed ? "selected" : null)">Completed</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Orders != null && Model.Orders.Any())
+    {
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Related Orders</h5>
+
+                <div class="table-responsive mt-4">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Created On</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model.Orders)
+                            {
+                                <tr>
+                                    <td>#@order.Id</td>
+                                    <td>@order.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        @switch (order.Status)
+                                        {
+                                            case OrderStatus.Created:
+                                                <span class="badge bg-primary">Created</span>
+                                                break;
+                                            case OrderStatus.Processing:
+                                                <span class="badge bg-warning">Processing</span>
+                                                break;
+                                            case OrderStatus.Ready:
+                                                <span class="badge bg-info">Ready</span>
+                                                break;
+                                            case OrderStatus.Completed:
+                                                <span class="badge bg-success">Completed</span>
+                                                break;
+                                            case OrderStatus.Cancelled:
+                                                <span class="badge bg-danger">Cancelled</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>$@order.TotalAmount.ToString("F2")</td>
+                                    <td>
+                                        <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

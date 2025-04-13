@@ -1,0 +1,72 @@
+﻿@using RestaurantManagementSystem.Models
+@model IEnumerable<RestaurantManagementSystem.Models.Order>
+@{
+    ViewData["Title"] = "Order Management";
+}
+<div class="container">
+    <h1 class="mb-4">Order Management</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-4">All Orders</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Amount</th>
+                            <th>Reservation</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.OrderByDescending(o => o.CreatedAt))
+                        {
+                            <tr>
+                                <td>#@order.Id</td>
+                                <td>@order.User.FirstName @order.User.LastName</td>
+                                <td>@order.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>
+                                    @switch (order.Status)
+                                    {
+                                        case OrderStatus.Created:
+                                            <span class="badge bg-primary">Created</span>
+                                            break;
+                                        case OrderStatus.Processing:
+                                            <span class="badge bg-warning">Processing</span>
+                                            break;
+                                        case OrderStatus.Ready:
+                                            <span class="badge bg-info">Ready</span>
+                                            break;
+                                        case OrderStatus.Completed:
+                                            <span class="badge bg-success">Completed</span>
+                                            break;
+                                        case OrderStatus.Cancelled:
+                                            <span class="badge bg-danger">Cancelled</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>$@order.TotalAmount.ToString("F2")</td>
+                                <td>
+                                    @if (order.Reservation != null)
+                                    {
+                                        <a asp-action="ReservationDetails" asp-route-id="@order.Reservation.Id">View</a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">None</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,120 @@
+﻿@{
+    ViewData["Title"] = "Make a Reservation";
+}
+
+<div class="container">
+    <h1 class="mb-4">Make a Reservation</h1>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Reservation Information</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label">Select Date</label>
+                        <input type="date" id="reservationDate" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Available Times</label>
+                        <div id="timeSlots" class="d-flex flex-wrap gap-2">
+                            <div class="alert alert-info">Please select a date first</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Party Size</label>
+                        <select id="partySize" class="form-select">
+                            @for (int i = 1; i <= 10; i++)
+                            {
+                                <option value="@i">@i @(i == 1 ? "person" : "people")</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Special Requests (optional)</label>
+                        <textarea id="specialRequests" class="form-control" rows="3" placeholder="Enter any special requests here"></textarea>
+                    </div>
+
+                    <div class="text-end">
+                        <button id="submitReservation" class="btn btn-primary" disabled>Submit Reservation</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            let selectedTime = null;
+
+            // Date change event to load available times
+            $('#reservationDate').change(function() {
+                const selectedDate = $(this).val();
+                if (!selectedDate) {
+                    $('#timeSlots').html('<div class="alert alert-info">Please select a date first</div>');
+                    $('#submitReservation').prop('disabled', true);
+                    return;
+                }
+
+                // Reset selection
+                selectedTime = null;
+                $('#submitReservation').prop('disabled', true);
+
+                // Load available times for the selected date
+                $.getJSON('@Url.Action("AvailableTimes", "Home")', { date: selectedDate }, function(times) {
+                    if (times.length === 0) {
+                        $('#timeSlots').html('<div class="alert alert-warning">No available times for this date</div>');
+                        return;
+                    }
+
+                    let html = '';
+                    times.forEach(function(time) {
+                        const timeStr = new Date(time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        html += `<button class="btn btn-outline-secondary time-slot" data-time="${time}">${timeStr}</button>`;
+                    });
+
+                    $('#timeSlots').html(html);
+
+                    // Bind time slot click event
+                    $('.time-slot').click(function() {
+                        $('.time-slot').removeClass('btn-primary').addClass('btn-outline-secondary');
+                        $(this).removeClass('btn-outline-secondary').addClass('btn-primary');
+                        selectedTime = $(this).data('time');
+                        $('#submitReservation').prop('disabled', false);
+                    });
+                });
+            });
+
+            // Submit reservation
+            $('#submitReservation').click(function() {
+                if (!$('#reservationDate').val() || !selectedTime) {
+                    alert('Please select a date and time');
+                    return;
+                }
+
+                // If user is not logged in, redirect to login page
+                if (!@(User.Identity.IsAuthenticated.ToString().ToLower())) {
+                    window.location.href = '@Url.Action("Login", "Account", new { returnUrl = "/Customer/CreateReservation" })';
+                    return;
+                }
+
+                // Get form data
+                const reservationTime = selectedTime;
+                const partySize = $('#partySize').val();
+                const specialRequests = $('#specialRequests').val();
+
+                // Create and submit a form to Customer/CreateReservation
+                var form = $('<form></form>').attr('method', 'get').attr('action', '@Url.Action("CreateReservation", "Customer")');
+                form.append($('<input>').attr('type', 'hidden').attr('name', 'reservationTime').val(reservationTime));
+                form.append($('<input>').attr('type', 'hidden').attr('name', 'partySize').val(partySize));
+                form.append($('<input>').attr('type', 'hidden').attr('name', 'specialRequests').val(specialRequests));
+                form.appendTo('body').submit();
+            });
+        });
+    </script>
+}

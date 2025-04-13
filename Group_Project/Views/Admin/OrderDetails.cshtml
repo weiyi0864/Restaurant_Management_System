@@ -1,0 +1,120 @@
+﻿@using RestaurantManagementSystem.Models
+@model RestaurantManagementSystem.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<div class="container">
+    <div class="mb-4">
+        <a asp-action="Orders" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Orders List
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Order Details</h5>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <p><strong>Order Number:</strong> #@Model.Id</p>
+                    <p><strong>Customer:</strong> @Model.User.FirstName @Model.User.LastName</p>
+                    <p><strong>Email:</strong> @Model.User.Email</p>
+                    <p><strong>Phone:</strong> @Model.User.PhoneNumber</p>
+                    <p><strong>Order Date:</strong> @Model.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+                    @if (Model.Reservation != null)
+                    {
+                        <p><strong>Related Reservation:</strong> <a asp-action="ReservationDetails" asp-route-id="@Model.Reservation.Id">Reservation #@Model.Reservation.Id</a></p>
+                    }
+                </div>
+                <div class="col-md-6">
+                    <p>
+                        <strong>Order Status:</strong>
+                        @switch (Model.Status)
+                        {
+                            case OrderStatus.Created:
+                                <span class="badge bg-primary">Created</span>
+                                break;
+                            case OrderStatus.Processing:
+                                <span class="badge bg-warning">Processing</span>
+                                break;
+                            case OrderStatus.Ready:
+                                <span class="badge bg-info">Ready</span>
+                                break;
+                            case OrderStatus.Completed:
+                                <span class="badge bg-success">Completed</span>
+                                break;
+                            case OrderStatus.Cancelled:
+                                <span class="badge bg-danger">Cancelled</span>
+                                break;
+                        }
+                    </p>
+                    <p><strong>Total Amount:</strong> $@Model.TotalAmount.ToString("F2")</p>
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <p><strong>Last Updated:</strong> @Model.UpdatedAt.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+                    }
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <form asp-action="UpdateOrderStatus" asp-route-id="@Model.Id" method="post" class="row g-3">
+                    <div class="col-auto">
+                        <select name="status" class="form-select">
+                            <option value="@((int)OrderStatus.Created)" selected="@(Model.Status == OrderStatus.Created ? "selected" : null)">Created</option>
+                            <option value="@((int)OrderStatus.Processing)" selected="@(Model.Status == OrderStatus.Processing ? "selected" : null)">Processing</option>
+                            <option value="@((int)OrderStatus.Ready)" selected="@(Model.Status == OrderStatus.Ready ? "selected" : null)">Ready</option>
+                            <option value="@((int)OrderStatus.Completed)" selected="@(Model.Status == OrderStatus.Completed ? "selected" : null)">Completed</option>
+                            <option value="@((int)OrderStatus.Cancelled)" selected="@(Model.Status == OrderStatus.Cancelled ? "selected" : null)">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Order Items</h5>
+
+            <div class="table-responsive mt-4">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-center">Unit Price</th>
+                            <th class="text-center">Quantity</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <tr>
+                                <td>
+                                    <div>
+                                        <h6 class="mb-0">@item.MenuItem.Name</h6>
+                                        <small class="text-muted">@item.MenuItem.Category</small>
+                                    </div>
+                                </td>
+                                <td class="text-center">$@item.Price.ToString("F2")</td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-end">$@((item.Price * item.Quantity).ToString("F2"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold">Total:</td>
+                            <td class="text-end fw-bold">$@Model.TotalAmount.ToString("F2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

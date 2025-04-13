@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container">
+    <div class="hero-section text-center mb-5">
+        <h1 class="display-4 mb-4">Welcome to Our Restaurant</h1>
+        <p class="lead">Experience exquisite cuisine and perfect service</p>
+        <div class="mt-4">
+            <a asp-controller="Home" asp-action="Menu" class="btn btn-primary me-2">Browse Menu</a>
+            <a asp-controller="Home" asp-action="Reservation" class="btn btn-outline-primary">Online Reservation</a>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-utensils fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Fine Cuisine</h3>
+                    <p class="card-text">Our chef carefully prepares each dish to bring you the ultimate taste experience.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Easy Reservation</h3>
+                    <p class="card-text">Our online reservation system makes it easy to schedule dining times without waiting on the phone.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-concierge-bell fa-3x mb-3 text-primary"></i>
+                    <h3 class="card-title">Quality Service</h3>
+                    <p class="card-text">Our staff will provide you with attentive service to make your dining experience more enjoyable.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

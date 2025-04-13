@@ -1,0 +1,69 @@
+﻿@using RestaurantManagementSystem.Models
+@model IEnumerable<RestaurantManagementSystem.Models.Reservation>
+@{
+    ViewData["Title"] = "Reservation Management";
+}
+<div class="container">
+    <h1 class="mb-4">Reservation Management</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-4">All Reservations</h5>
+            <div class="mb-4">
+                <div class="btn-group" role="group" aria-label="Reservation Filter">
+                    <a href="?status=all" class="btn btn-outline-secondary">All</a>
+                    <a href="?status=pending" class="btn btn-outline-warning">Pending</a>
+                    <a href="?status=confirmed" class="btn btn-outline-success">Confirmed</a>
+                    <a href="?status=cancelled" class="btn btn-outline-danger">Cancelled</a>
+                    <a href="?status=completed" class="btn btn-outline-secondary">Completed</a>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Party Size</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var reservation in Model.OrderByDescending(r => r.ReservationTime))
+                        {
+                            <tr>
+                                <td>#@reservation.Id</td>
+                                <td>@reservation.User.FirstName @reservation.User.LastName</td>
+                                <td>@reservation.ReservationTime.ToShortDateString()</td>
+                                <td>@reservation.ReservationTime.ToShortTimeString()</td>
+                                <td>@reservation.PartySize people</td>
+                                <td>
+                                    @switch (reservation.Status)
+                                    {
+                                        case ReservationStatus.Pending:
+                                            <span class="badge bg-warning">Pending</span>
+                                            break;
+                                        case ReservationStatus.Confirmed:
+                                            <span class="badge bg-success">Confirmed</span>
+                                            break;
+                                        case ReservationStatus.Cancelled:
+                                            <span class="badge bg-danger">Cancelled</span>
+                                            break;
+                                        case ReservationStatus.Completed:
+                                            <span class="badge bg-secondary">Completed</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="ReservationDetails" asp-route-id="@reservation.Id" class="btn btn-sm btn-outline-primary">Details</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

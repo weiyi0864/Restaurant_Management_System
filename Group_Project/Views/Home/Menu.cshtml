@@ -1,0 +1,78 @@
+﻿@model IEnumerable<RestaurantManagementSystem.Models.MenuItem>
+
+@{
+    ViewData["Title"] = "Menu";
+
+    // Get all menu categories
+    var categories = Model.Select(m => m.Category).Distinct().ToList();
+}
+
+<div class="container">
+    <h1 class="mb-4">Our Menu</h1>
+
+    <div class="mb-4">
+        <ul class="nav nav-pills" id="menuTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">All</button>
+            </li>
+            @foreach (var category in categories)
+            {
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="@(category)-tab" data-bs-toggle="pill" data-bs-target="#@(category)" type="button" role="tab" aria-controls="@(category)" aria-selected="false">@category</button>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div class="tab-content" id="menuTabsContent">
+        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+            <div class="row">
+                @foreach (var item in Model)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">@item.Name</h5>
+                                <p class="card-text">@item.Description</p>
+                                <p class="text-primary fw-bold">$@item.Price.ToString("F2")</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @foreach (var category in categories)
+        {
+            <div class="tab-pane fade" id="@(category)" role="tabpanel" aria-labelledby="@(category)-tab">
+                <div class="row">
+                    @foreach (var item in Model.Where(m => m.Category == category))
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">@item.Name</h5>
+                                    <p class="card-text">@item.Description</p>
+                                    <p class="text-primary fw-bold">$@item.Price.ToString("F2")</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="text-center mt-4">
+            <a href="@Url.Action("CreateOrder", "Customer")" class="btn btn-primary">Place an Order</a>
+        </div>
+    }
+    else
+    {
+        <div class="text-center mt-4">
+            <p>Please <a href="@Url.Action("Login", "Account", new { returnUrl = "/Customer/CreateOrder" })">login</a> to place an order.</p>
+        </div>
+    }
+</div>

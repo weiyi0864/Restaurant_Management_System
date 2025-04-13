@@ -1,0 +1,58 @@
+﻿@model IEnumerable<RestaurantManagementSystem.Models.MenuItem>
+@{
+    ViewData["Title"] = "Menu Management";
+}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Menu Management</h1>
+        <a asp-action="CreateMenuItem" class="btn btn-primary">Add a dish</a>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-4">All dishes</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <!-- Removed Image column -->
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>#@item.Id</td>
+                                <!-- Removed Image cell -->
+                                <td>@item.Name</td>
+                                <td>@item.Category</td>
+                                <td>$@item.Price.ToString("F2")</td>
+                                <td>
+                                    @if (item.IsAvailable)
+                                    {
+                                        <span class="badge bg-success">Available</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Unavailable</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a asp-action="EditMenuItem" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                                    <form asp-action="DeleteMenuItem" asp-route-id="@item.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this item?')">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

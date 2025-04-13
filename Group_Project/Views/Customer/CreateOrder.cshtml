@@ -1,0 +1,250 @@
+﻿@{
+    ViewData["Title"] = "Create Order";
+    var reservationId = ViewData["ReservationId"] as int?;
+    var menuItems = ViewData["MenuItems"] as List<RestaurantManagementSystem.Models.MenuItem>;
+    var categories = menuItems.Select(m => m.Category).Distinct().ToList();
+}
+
+<div class="container">
+    <h1 class="mb-4">Create Order</h1>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Menu</h5>
+
+                    <div class="mb-4">
+                        <ul class="nav nav-pills" id="menuTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">All</button>
+                            </li>
+                            @foreach (var category in categories)
+                            {
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="@(category)-tab" data-bs-toggle="pill" data-bs-target="#@(category)" type="button" role="tab" aria-controls="@(category)" aria-selected="false">@category</button>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                    <div class="tab-content" id="menuTabsContent">
+                        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                            <div class="row">
+                                @foreach (var item in menuItems)
+                                {
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card h-100">
+                                            <div class="card-body">
+                                                <div>
+                                                    <h5 class="card-title">@item.Name</h5>
+                                                    <p class="card-text small">@item.Description</p>
+                                                    <p class="text-primary fw-bold">$@item.Price.ToString("F2")</p>
+                                                </div>
+                                                <div class="d-flex align-items-center mt-2">
+                                                    <button class="btn btn-sm btn-outline-secondary decrease-item" data-id="@item.Id" disabled>-</button>
+                                                    <span class="item-quantity mx-2" data-id="@item.Id">0</span>
+                                                    <button class="btn btn-sm btn-outline-primary increase-item" data-id="@item.Id">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        @foreach (var category in categories)
+                        {
+                            <div class="tab-pane fade" id="@(category)" role="tabpanel" aria-labelledby="@(category)-tab">
+                                <div class="row">
+                                    @foreach (var item in menuItems.Where(m => m.Category == category))
+                                    {
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                <div class="card-body">
+                                                    <div>
+                                                        <h5 class="card-title">@item.Name</h5>
+                                                        <p class="card-text small">@item.Description</p>
+                                                        <p class="text-primary fw-bold">$@item.Price.ToString("F2")</p>
+                                                    </div>
+                                                    <div class="d-flex align-items-center mt-2">
+                                                        <button class="btn btn-sm btn-outline-secondary decrease-item" data-id="@item.Id" disabled>-</button>
+                                                        <span class="item-quantity mx-2" data-id="@item.Id">0</span>
+                                                        <button class="btn btn-sm btn-outline-primary increase-item" data-id="@item.Id">+</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Order Summary</h5>
+
+                    <form id="orderForm" asp-action="CreateOrder" method="post">
+                        @if (reservationId.HasValue)
+                        {
+                            <input type="hidden" name="ReservationId" value="@reservationId" />
+                        }
+
+                        <div id="orderItems" class="mt-4">
+                            <div class="alert alert-info">Please select items from the menu</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between fw-bold mt-3">
+                            <span>Total:</span>
+                            <span id="totalAmount">$0.00</span>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" id="submitOrder" class="btn btn-primary w-100" disabled>Submit Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Debug: Log the menu items to verify data structure
+            const menuItemsJson = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(menuItems));
+            console.log("Menu items loaded:", menuItemsJson);
+
+            const orderItems = [];
+
+            // Increase item quantity
+            $('.increase-item').click(function() {
+                const itemId = parseInt($(this).data('id'));
+                console.log("Increasing item ID:", itemId);
+
+                // Find the menu item, accounting for C# property naming conventions
+                const menuItem = menuItemsJson.find(item => item.Id === itemId);
+
+                if (!menuItem) {
+                    console.error("Menu item not found:", itemId);
+                    return;
+                }
+
+                console.log("Found menu item:", menuItem);
+
+                // Check if item already exists in order
+                const existingItemIndex = orderItems.findIndex(item => item.menuItemId === itemId);
+
+                if (existingItemIndex >= 0) {
+                    // Already exists, increase quantity
+                    orderItems[existingItemIndex].quantity += 1;
+                } else {
+                    // Doesn't exist, add to order
+                    orderItems.push({
+                        menuItemId: itemId,
+                        quantity: 1,
+                        name: menuItem.Name,
+                        price: menuItem.Price
+                    });
+                }
+
+                // Update UI
+                updateQuantityDisplay(itemId);
+                updateOrderSummary();
+            });
+
+            // Decrease item quantity
+            $('.decrease-item').click(function() {
+                const itemId = parseInt($(this).data('id'));
+                console.log("Decreasing item ID:", itemId);
+
+                const existingItemIndex = orderItems.findIndex(item => item.menuItemId === itemId);
+
+                if (existingItemIndex >= 0) {
+                    if (orderItems[existingItemIndex].quantity > 1) {
+                        // Quantity greater than 1, decrease quantity
+                        orderItems[existingItemIndex].quantity -= 1;
+                    } else {
+                        // Quantity is 1, remove from order
+                        orderItems.splice(existingItemIndex, 1);
+                    }
+
+                    // Update UI
+                    updateQuantityDisplay(itemId);
+                    updateOrderSummary();
+                }
+            });
+
+            // Update item quantity display
+            function updateQuantityDisplay(itemId) {
+                const existingItem = orderItems.find(item => item.menuItemId === itemId);
+                const quantity = existingItem ? existingItem.quantity : 0;
+
+                $(`.item-quantity[data-id="${itemId}"]`).text(quantity);
+
+                // Enable/disable decrease button
+                if (quantity > 0) {
+                    $(`.decrease-item[data-id="${itemId}"]`).prop('disabled', false);
+                } else {
+                    $(`.decrease-item[data-id="${itemId}"]`).prop('disabled', true);
+                }
+            }
+
+            // Update order summary
+            function updateOrderSummary() {
+                if (orderItems.length === 0) {
+                    $('#orderItems').html('<div class="alert alert-info">Please select items from the menu</div>');
+                    $('#submitOrder').prop('disabled', true);
+                    $('#totalAmount').text('$0.00');
+                    return;
+                }
+
+                let html = '<div class="list-group list-group-flush">';
+                let total = 0;
+
+                orderItems.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+
+                    html += `
+                    <div class="list-group-item px-0">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="fw-bold">${item.name}</span>
+                                <div class="text-muted small">$${item.price.toFixed(2)} x ${item.quantity}</div>
+                                <input type="hidden" name="Items[${orderItems.indexOf(item)}].MenuItemId" value="${item.menuItemId}" />
+                                <input type="hidden" name="Items[${orderItems.indexOf(item)}].Quantity" value="${item.quantity}" />
+                            </div>
+                            <div class="text-end">
+                                $${itemTotal.toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                });
+
+                html += '</div>';
+
+                $('#orderItems').html(html);
+                $('#totalAmount').text('$' + total.toFixed(2));
+                $('#submitOrder').prop('disabled', false);
+            }
+
+            // Form validation before submit
+            $('#orderForm').submit(function(e) {
+                if (orderItems.length === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one item');
+                    return false;
+                }
+                return true;
+            });
+        });
+    </script>
+}

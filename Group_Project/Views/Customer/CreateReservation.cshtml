@@ -1,0 +1,34 @@
+﻿@model RestaurantManagementSystem.Models.ViewModels.ReservationViewModel
+@{
+    ViewData["Title"] = "Confirm Reservation";
+}
+<div class="container">
+    <h1 class="mb-4">Confirm Reservation</h1>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Reservation Details</h5>
+                    <form asp-action="CreateReservation" method="post">
+                        <div class="mb-3">
+                            <label asp-for="ReservationTime" class="form-label">Reservation Time</label>
+                            <input asp-for="ReservationTime" class="form-control" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="PartySize" class="form-label">Party Size</label>
+                            <input asp-for="PartySize" class="form-control" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="SpecialRequests" class="form-label">Special Requests</label>
+                            <textarea asp-for="SpecialRequests" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="text-end">
+                            <a asp-action="Reservations" class="btn btn-outline-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Confirm Reservation</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

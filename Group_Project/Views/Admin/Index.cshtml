@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container">
+    <h1 class="mb-4">Restaurant Management System</h1>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt fa-3x mb-3 text-primary"></i>
+                    <h4 class="card-title">Reservation Management</h4>
+                    <p class="card-text">View and manage all customer reservations</p>
+                    <a asp-action="Reservations" class="btn btn-primary">Enter</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="fas fa-utensils fa-3x mb-3 text-primary"></i>
+                    <h4 class="card-title">Order Management</h4>
+                    <p class="card-text">Processing customer orders and tracking status</p>
+                    <a asp-action="Orders" class="btn btn-primary">Enter</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <i class="fas fa-clipboard-list fa-3x mb-3 text-primary"></i>
+                    <h4 class="card-title">Menu Management</h4>
+                    <p class="card-text">Updated menu items and prices</p>
+                    <a asp-action="Menu" class="btn btn-primary">Enter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

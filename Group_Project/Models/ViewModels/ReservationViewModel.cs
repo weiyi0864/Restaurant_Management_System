@@ -6,7 +6,7 @@ namespace RestaurantManagementSystem.Models.ViewModels
     {
         public DateTime ReservationTime { get; set; }
         public int PartySize { get; set; }
-        public string SpecialRequests { get; set; }
+        public string? SpecialRequests { get; set; }
     }
 
     public class OrderViewModel

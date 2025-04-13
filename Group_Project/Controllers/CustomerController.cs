@@ -22,27 +22,11 @@ namespace RestaurantManagementSystem.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        // Modify the Index method to redirect to Reservations, since dashboard is removed
+        public IActionResult Index()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            // Get upcoming reservations
-            var upcomingReservations = await _context.Reservations
-                .Where(r => r.UserId == userId && r.ReservationTime > DateTime.UtcNow && r.Status != ReservationStatus.Cancelled)
-                .OrderBy(r => r.ReservationTime)
-                .ToListAsync();
-
-            // Get recent orders
-            var recentOrders = await _context.Orders
-                .Where(o => o.UserId == userId)
-                .OrderByDescending(o => o.CreatedAt)
-                .Take(5)
-                .ToListAsync();
-
-            ViewData["UpcomingReservations"] = upcomingReservations;
-            ViewData["RecentOrders"] = recentOrders;
-
-            return View();
+            // Redirect to Reservations page instead of showing My Account
+            return RedirectToAction(nameof(Reservations));
         }
 
         public async Task<IActionResult> Reservations()

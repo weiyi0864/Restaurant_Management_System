@@ -1,5 +1,5 @@
 # Ignore Visual Studio and user-specific files
-../.vs/
+.vs/
 *.user
 *.suo
 

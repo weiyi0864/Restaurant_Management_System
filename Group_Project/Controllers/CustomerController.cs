@@ -72,7 +72,7 @@ namespace RestaurantManagementSystem.Controllers
                     UserId = userId,
                     ReservationTime = model.ReservationTime,
                     PartySize = model.PartySize,
-                    SpecialRequests = string.IsNullOrEmpty(model.SpecialRequests) ? "none" : model.SpecialRequests,
+                    SpecialRequests = string.IsNullOrEmpty(model.SpecialRequests) ? "None" : model.SpecialRequests,//If no special requests, set to "None"
                     Status = ReservationStatus.Confirmed // Auto-confirm for simplicity
                 };
 

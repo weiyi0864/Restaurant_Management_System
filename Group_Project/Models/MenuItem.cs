@@ -22,11 +22,11 @@ namespace RestaurantManagementSystem.Models
 
         public string Category { get; set; }
 
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
 
         public bool IsAvailable { get; set; } = true;
 
         // Navigation properties
-        public ICollection<OrderItem> OrderItems { get; set; }
+        public ICollection<OrderItem>? OrderItems { get; set; }
     }
 }

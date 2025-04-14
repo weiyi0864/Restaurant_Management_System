@@ -132,6 +132,14 @@ namespace RestaurantManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateMenuItem(MenuItem menuItem)
         {
+            // Since imageUrl is not required, we can set a default value if it's not provided
+            // Setting values manually
+            menuItem.ImageUrl = "/images/menu/default.jpg";
+
+            // Force removal of validation errors for specific fields
+            ModelState.Remove("ImageUrl");
+
+
             if (ModelState.IsValid)
             {
                 _context.Add(menuItem);

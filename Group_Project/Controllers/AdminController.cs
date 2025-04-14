@@ -168,6 +168,15 @@ namespace RestaurantManagementSystem.Controllers
                 return NotFound();
             }
 
+            // Set default ImageUrl value if it's empty
+            if (string.IsNullOrEmpty(menuItem.ImageUrl))
+            {
+                menuItem.ImageUrl = "/images/menu/default.jpg";
+            }
+
+            // Remove ImageUrl validation errors
+            ModelState.Remove("ImageUrl");
+
             if (ModelState.IsValid)
             {
                 try
@@ -201,8 +210,8 @@ namespace RestaurantManagementSystem.Controllers
                 return NotFound();
             }
 
-            // Soft delete
-            menuItem.IsAvailable = false;
+            // Hard delete the record instead of soft delete
+            _context.MenuItems.Remove(menuItem);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Menu));

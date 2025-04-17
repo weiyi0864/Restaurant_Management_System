@@ -138,7 +138,24 @@ namespace RestaurantManagementSystem.Controllers.API
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
+            var orderResponse = new
+            {
+                order.Id,
+                order.UserId,
+                order.ReservationId,
+                order.Status,
+                order.TotalAmount,
+                order.CreatedAt,
+                OrderItems = order.OrderItems.Select(oi => new
+                {
+                    oi.Id,
+                    oi.MenuItemId,
+                    oi.Quantity,
+                    oi.Price
+                }).ToList()
+            };
+
+            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, orderResponse);
         }
 
         // PUT: api/Orders/5/status

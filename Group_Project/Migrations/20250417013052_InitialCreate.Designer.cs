@@ -12,7 +12,7 @@ using RestaurantManagementSystem.Data;
 namespace RestaurantManagementSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250412140602_InitialCreate")]
+    [Migration("20250417013052_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -253,7 +253,6 @@ namespace RestaurantManagementSystem.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAvailable")

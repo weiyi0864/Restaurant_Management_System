@@ -52,6 +52,7 @@ namespace RestaurantManagementSystem.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Seed data for menu items
+            // Still keep the ImageUrl since for avoiding bug
             modelBuilder.Entity<MenuItem>().HasData(
                 new MenuItem { Id = 1, Name = "Margherita Pizza", Description = "Classic pizza with tomato sauce, mozzarella, and basil", Price = 12.99m, Category = "Pizza", ImageUrl = "/images/menu/margherita.jpg" },
                 new MenuItem { Id = 2, Name = "Pepperoni Pizza", Description = "Pizza with tomato sauce, mozzarella, and pepperoni", Price = 14.99m, Category = "Pizza", ImageUrl = "/images/menu/pepperoni.jpg" },

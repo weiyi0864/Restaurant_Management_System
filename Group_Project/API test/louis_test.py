@@ -1,11 +1,11 @@
 """
-Restaurant Management System API Test - Authentication
-Developer: Louis He
+Restaurant Management System API Test - Order System
+Developer: Weiyi Weng
 
-This script tests user registration and login functionality.
+This script tests order creation and verification.
 
 Usage:
-    python louis_auth_test.py
+    python weiyi_order_test.py
 """
 
 import requests
@@ -29,23 +29,23 @@ def print_result(name, success):
     status = "✅ PASSED" if success else "❌ FAILED"
     print(f"{name}: {status}")
 
-def test_authentication():
-    print_header("Authentication Test (Louis He)")
+def test_order_system():
+    print_header("Order System Test (Weiyi Weng)")
     
     try:
-        # 1. Register a new user
+        # 1. Register new user
         timestamp = int(time.time())
-        email = f"test_user_{timestamp}@example.com"
+        email = f"order_test_{timestamp}@example.com"
         
-        print("1. Registering a new user...")
+        print("1. Registering new user...")
         session = requests.Session()
         register_data = {
-            "firstName": "Test",
-            "lastName": "User",
+            "firstName": "Order",
+            "lastName": "Tester",
             "email": email,
             "password": "Test123!",
             "confirmPassword": "Test123!",
-            "phoneNumber": "1234567890"
+            "phoneNumber": "5556667777"
         }
         
         response = session.post(
@@ -56,44 +56,91 @@ def test_authentication():
         
         if response.status_code != 200:
             print(f"Registration failed: HTTP {response.status_code}")
-            print(f"Response: {response.text}")
             return False
         
         print("✓ User registration successful")
         
-        # 2. Login with the new user
-        print("\n2. Logging in with the new user...")
-        login_data = {
-            "email": email,
-            "password": "Test123!",
-            "rememberMe": False
+        # 2. Get menu items
+        print("\n2. Getting available menu items...")
+        response = session.get(f"{BASE_URL}/api/Menu", verify=False)
+        
+        if response.status_code != 200:
+            print(f"Failed to get menu: HTTP {response.status_code}")
+            return False
+        
+        menu_items = response.json()
+        
+        if not menu_items or len(menu_items) < 1:
+            print("No menu items available")
+            return False
+        
+        print(f"✓ Retrieved {len(menu_items)} menu items")
+        
+        # Select items for order
+        selected_items = menu_items[:2] if len(menu_items) >= 2 else [menu_items[0]]
+        
+        # 3. Create order
+        print("\n3. Creating order...")
+        
+        order_items = []
+        if len(selected_items) >= 2:
+            order_items = [
+                {"menuItemId": selected_items[0]['id'], "quantity": 2},
+                {"menuItemId": selected_items[1]['id'], "quantity": 1}
+            ]
+        else:
+            order_items = [{"menuItemId": selected_items[0]['id'], "quantity": 2}]
+        
+        order_data = {
+            "reservationId": None,
+            "items": order_items
         }
         
         response = session.post(
-            f"{BASE_URL}/api/Auth/login", 
-            json=login_data,
+            f"{BASE_URL}/api/Orders",
+            json=order_data,
+            verify=False
+        )
+        
+        if response.status_code != 201:
+            print(f"Order creation failed: HTTP {response.status_code}")
+            return False
+        
+        # Extract order ID
+        order_response = response.json()
+        order_id = order_response.get('id')
+            
+        print(f"✓ Order created successfully, ID: {order_id}")
+        
+        # 4. Verify order details
+        print(f"\n4. Verifying order details...")
+        response = session.get(
+            f"{BASE_URL}/api/Orders/{order_id}",
             verify=False
         )
         
         if response.status_code != 200:
-            print(f"Login failed: HTTP {response.status_code}")
-            print(f"Response: {response.text}")
+            print(f"Failed to get order: HTTP {response.status_code}")
             return False
         
-        # Check if authentication cookie exists
-        cookies = session.cookies.get_dict()
-        if not any('.AspNetCore' in key for key in cookies):
-            print("❌ Failed to receive authentication cookie")
+        # Process order details
+        order = response.json()
+        order_items = order.get('orderItems', [])
+        
+        print(f"Order amount: ${order.get('totalAmount')}")
+        print(f"Order items count: {len(order_items)}")
+        
+        if len(order_items) < 1:
+            print("Order has no items")
             return False
         
-        print("✓ User login successful")
-        print("✓ Authentication cookie received")
+        print("✓ Order data verification successful")
+        print("✓ Order system test successful")
         
         return True
     
     except requests.exceptions.ConnectionError:
         print("Connection error: Please ensure the application is running")
-        print(f"Current BASE_URL: {BASE_URL}")
         return False
     except Exception as e:
         print(f"Test error: {e}")
@@ -101,17 +148,17 @@ def test_authentication():
 
 # Main program
 if __name__ == "__main__":
-    print("\nRestaurant Management System - Authentication Test")
+    print("\nRestaurant Management System - Order System Test")
     print("=" * 50)
     
-    result = test_authentication()
+    result = test_order_system()
     
     # Print result summary
     print("\n" + "=" * 50)
     print(" Test Result Summary ".center(50, '='))
     print("=" * 50)
     
-    print_result("Authentication Test (Louis He)", result)
+    print_result("Order System Test (Weiyi Weng)", result)
     
     print("\nFinal Result: ", "✅ TEST PASSED" if result else "❌ TEST FAILED")
     print("=" * 50)

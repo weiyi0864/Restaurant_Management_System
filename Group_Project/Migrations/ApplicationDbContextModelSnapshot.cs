@@ -250,7 +250,6 @@ namespace RestaurantManagementSystem.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsAvailable")

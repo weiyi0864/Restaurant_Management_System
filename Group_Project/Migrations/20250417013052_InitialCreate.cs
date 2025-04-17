@@ -65,7 +65,7 @@ namespace RestaurantManagementSystem.Migrations
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsAvailable = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>

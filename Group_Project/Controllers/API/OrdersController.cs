@@ -1,5 +1,4 @@
-﻿//using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantManagementSystem.Data;
@@ -75,7 +74,29 @@ namespace RestaurantManagementSystem.Controllers.API
                 return Forbid();
             }
 
-            return order;
+            // Creating a flat response object to avoid circular references
+            var result = new
+            {
+                Id = order.Id,
+                UserId = order.UserId,
+                UserEmail = order.User?.Email,
+                ReservationId = order.ReservationId,
+                Status = order.Status,
+                TotalAmount = order.TotalAmount,
+                CreatedAt = order.CreatedAt,
+                UpdatedAt = order.UpdatedAt,
+                OrderItems = order.OrderItems.Select(oi => new
+                {
+                    Id = oi.Id,
+                    MenuItemId = oi.MenuItemId,
+                    MenuItemName = oi.MenuItem.Name,
+                    MenuItemPrice = oi.MenuItem.Price,
+                    Quantity = oi.Quantity,
+                    Price = oi.Price
+                }).ToList()
+            };
+
+            return Ok(result);
         }
 
         // POST: api/Orders
@@ -138,24 +159,25 @@ namespace RestaurantManagementSystem.Controllers.API
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            var orderResponse = new
+            // Creates a simple structure of objects to return, without the risk of circular references
+            var response = new
             {
-                order.Id,
-                order.UserId,
-                order.ReservationId,
-                order.Status,
-                order.TotalAmount,
-                order.CreatedAt,
-                OrderItems = order.OrderItems.Select(oi => new
+                id = order.Id,
+                userId = order.UserId,
+                reservationId = order.ReservationId,
+                status = (int)order.Status,
+                totalAmount = order.TotalAmount,
+                createdAt = order.CreatedAt,
+                orderItems = order.OrderItems.Select(oi => new
                 {
-                    oi.Id,
-                    oi.MenuItemId,
-                    oi.Quantity,
-                    oi.Price
+                    id = oi.Id,
+                    menuItemId = oi.MenuItemId,
+                    quantity = oi.Quantity,
+                    price = oi.Price
                 }).ToList()
             };
 
-            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, orderResponse);
+            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, response);
         }
 
         // PUT: api/Orders/5/status
